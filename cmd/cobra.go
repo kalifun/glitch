@@ -26,6 +26,7 @@ func tip() {
 
 func init() {
 	rootCmd.AddCommand(initCmd)
+	rootCmd.AddCommand(genCmd)
 }
 
 func ExecCmd() {
