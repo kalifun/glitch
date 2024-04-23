@@ -24,6 +24,10 @@ func tip() {
 	fmt.Println(`You can try using -h to get more information`)
 }
 
+func init() {
+	rootCmd.AddCommand(initCmd)
+}
+
 func ExecCmd() {
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
