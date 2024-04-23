@@ -30,7 +30,7 @@ func init_template() {
 	if err != nil {
 		panic(err)
 	}
-	filePath := path.Join(dir, "error.yaml")
+	filePath := path.Join(dir, "errors.yaml")
 	ok, err := utils.PathExists(filePath)
 	if err != nil {
 		panic(err)

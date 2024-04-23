@@ -3,6 +3,7 @@ package cmd
 import (
 	"log"
 
+	"github.com/kalifun/glitch/repo/generator"
 	"github.com/kalifun/glitch/utils"
 	"github.com/spf13/cobra"
 )
@@ -29,5 +30,9 @@ func genCode() {
 	exit, _ := utils.PathExists(yamlFile)
 	if !exit {
 		log.Fatalf("%s file does not exist! use the init command to generate yam files.", yamlFile)
+	}
+	g := generator.NewCodeGen(yamlFile, packageName)
+	if err := g.Exec(); err != nil {
+		log.Fatalln(err)
 	}
 }
