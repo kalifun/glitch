@@ -3,9 +3,9 @@ package gerr
 import "fmt"
 
 type ErrorCode struct {
-	Code string
-	Key  string
-	Msg  ErrorMessage
+	Code    string
+	Key     string
+	Message ErrorMessage
 }
 
 type ErrorMessage struct {
