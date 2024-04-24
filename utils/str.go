@@ -1,6 +1,9 @@
 package utils
 
-import "strings"
+import (
+	"regexp"
+	"strings"
+)
 
 func FirstUpper(s string) string {
 	if s == "" {
@@ -14,4 +17,17 @@ func FirstLower(s string) string {
 		return ""
 	}
 	return strings.ToLower(s[:1]) + s[1:]
+}
+
+func EscapeString(str string) string {
+	// 定义需要转义的特殊字符
+	specialChars := `"` + "`" + `\` + "\n" + "\r" + "\t"
+
+	// 创建正则表达式
+	re := regexp.MustCompile(`[` + regexp.QuoteMeta(specialChars) + `]`)
+
+	// 使用 ReplaceAllStringFunc 替换特殊字符
+	return re.ReplaceAllStringFunc(str, func(s string) string {
+		return `\` + s
+	})
 }

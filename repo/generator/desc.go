@@ -28,12 +28,14 @@ func (e ErrorDesc) ToString() string {
 			declare = append(declare, "var (\n")
 		}
 
+		en := utils.EscapeString(v.Message.En)
+		cn := utils.EscapeString(v.Message.Cn)
 		low := utils.FirstLower(v.Key)
-		s := fmt.Sprintf(DeclareErr, low, v.Key, v.Code, v.Message.Cn, v.Message.En)
+		s := fmt.Sprintf(DeclareErr, low, v.Key, v.Code, cn, en)
 		vars = append(vars, s+"\n")
 		inits = append(inits, fmt.Sprintf("gerr.CreateError(%s)\n", low))
 		up := utils.FirstUpper(v.Key)
-		declare = append(declare, fmt.Sprintf(`%s = gerr.New("%s", "%s", "%s")`, up, v.Key, v.Code, v.Message.En)+"\n")
+		declare = append(declare, fmt.Sprintf(`%s = gerr.New("%s", "%s", "%s")`, up, v.Key, v.Code, en)+"\n")
 
 		if i == len(e.Error)-1 {
 			inits = append(inits, "\n}")
