@@ -1,6 +1,10 @@
 package gerr
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/gin-gonic/gin"
+)
 
 type ErrorCode struct {
 	Code    string
@@ -43,6 +47,31 @@ func (g *GError) Args(args ...interface{}) *GError {
 	newE.format = g.format
 	newE.args = append(newE.args, args...)
 	return newE
+}
+
+func (g *GError) ToGinH(lan string) gin.H {
+	msg := "unknown"
+	if err, ok := errorMap[g.key]; ok {
+		if g.code == "" {
+			g.code = err.Code
+		}
+		switch lan {
+		case "en":
+			msg = err.Message.EN
+		case "cn":
+			msg = err.Message.CN
+		default:
+			msg = err.Message.EN
+		}
+	} else {
+		g.code = "unknow"
+	}
+	return gin.H{
+		"error": map[string]string{
+			"code":    g.code,
+			"message": msg,
+		},
+	}
 }
 
 func CreateError(data ErrorCode) {
