@@ -1,8 +1,11 @@
 package gerr
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
+
+	"github.com/gin-gonic/gin"
 )
 
 func TestNew(t *testing.T) {
@@ -180,6 +183,73 @@ func TestDescribeErrorMap(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := DescribeErrorMap(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("DescribeErrorMap() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestGError_ToGinH(t *testing.T) {
+	type fields struct {
+		key    string
+		code   string
+		format string
+		args   []interface{}
+	}
+	type args struct {
+		lan string
+	}
+
+	d := &GError{
+		key:    "MissingParameterF",
+		code:   "MissingParameter",
+		format: "Missing Parameter: %s",
+		args:   []interface{}{"User"},
+	}
+
+	CreateError(ErrorCode{
+		Code: d.code,
+		Key:  d.key,
+		Message: ErrorMessage{
+			EN: d.format,
+			CN: d.format,
+		},
+	})
+
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   gin.H
+	}{
+		{
+			name: "error rewrite",
+			fields: fields{
+				key:    d.key,
+				code:   d.code,
+				format: d.format,
+				args:   d.args,
+			},
+			args: args{
+				lan: "en",
+			},
+			want: gin.H{
+				"error": map[string]string{
+					"code":    d.code,
+					"message": fmt.Sprintf(d.format, d.args...),
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			g := &GError{
+				key:    tt.fields.key,
+				code:   tt.fields.code,
+				format: tt.fields.format,
+				args:   tt.fields.args,
+			}
+			if got := g.ToGinH(tt.args.lan); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("GError.ToGinH() = %v, want %v", got, tt.want)
 			}
 		})
 	}

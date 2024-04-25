@@ -69,7 +69,7 @@ func (g *GError) ToGinH(lan string) gin.H {
 	return gin.H{
 		"error": map[string]string{
 			"code":    g.code,
-			"message": msg,
+			"message": fmt.Sprintf(msg, g.args...),
 		},
 	}
 }
