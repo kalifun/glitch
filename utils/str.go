@@ -31,3 +31,21 @@ func EscapeString(str string) string {
 		return `\` + s
 	})
 }
+
+func ToCamelCase(s string) string {
+	if s == "" {
+		return ""
+	}
+
+	// Split by underscore and convert to camel case
+	parts := strings.Split(s, "_")
+	result := ""
+
+	for _, part := range parts {
+		if part != "" {
+			result += FirstUpper(part)
+		}
+	}
+
+	return result
+}
