@@ -74,6 +74,15 @@ func (e *Error) Args(args ...interface{}) *Error {
 	}
 }
 
+// With adds metadata to the error
+func (e *Error) With(key string, value interface{}) *Error {
+	if e.metadata == nil {
+		e.metadata = make(map[string]interface{})
+	}
+	e.metadata[key] = value
+	return e
+}
+
 // ErrWrapper represents an error wrapper
 type ErrWrapper struct {
 	Key         string                 `json:"key" yaml:"key"`
