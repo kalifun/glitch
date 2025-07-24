@@ -28,6 +28,33 @@ func NewError(err ErrWrapper) *Error {
 	}
 }
 
+// New creates a new Error with the specified key and arguments
+func New(key string, args ...interface{}) *Error {
+	return &Error{
+		key:      key,
+		args:     args,
+		metadata: make(map[string]interface{}),
+		time:     time.Now(),
+	}
+}
+
+// Wrap creates a new Error that wraps an existing error
+func Wrap(cause error, key string, args ...interface{}) *Error {
+	return &Error{
+		key:      key,
+		args:     args,
+		cause:    cause,
+		metadata: make(map[string]interface{}),
+		time:     time.Now(),
+	}
+}
+
+// Code sets the error code
+func (e *Error) Code(code string) *Error {
+	e.code = code
+	return e
+}
+
 // Error implements the error interface
 func (e *Error) Error() string {
 	if e.errWrapper != nil {
