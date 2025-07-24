@@ -83,6 +83,91 @@ func (e *Error) With(key string, value interface{}) *Error {
 	return e
 }
 
+// Unwrap returns the wrapped error for error unwrapping
+func (e *Error) Unwrap() error {
+	return e.cause
+}
+
+// GetKey returns the error key
+func (e *Error) GetKey() string {
+	return e.key
+}
+
+// GetCode returns the error code
+func (e *Error) GetCode() string {
+	return e.code
+}
+
+// GetArgs returns the error arguments
+func (e *Error) GetArgs() []interface{} {
+	return e.args
+}
+
+// GetMetadata returns the error metadata
+func (e *Error) GetMetadata() map[string]interface{} {
+	result := make(map[string]interface{})
+	for k, v := range e.metadata {
+		result[k] = v
+	}
+	return result
+}
+
+// GetCause returns the wrapped error
+func (e *Error) GetCause() error {
+	return e.cause
+}
+
+// GetTime returns when the error was created
+func (e *Error) GetTime() time.Time {
+	return e.time
+}
+
+// GetErrWrapper returns the error definition
+func (e *Error) GetErrWrapper() *ErrWrapper {
+	return e.errWrapper
+}
+
+// GetMessages returns all messages
+func (e *Error) GetMessages() map[string]string {
+	if e.errWrapper != nil {
+		return e.errWrapper.Messages
+	}
+	return nil
+}
+
+// GetMessage returns a message in the specified language
+func (e *Error) GetMessage(lang string) string {
+	if e.errWrapper == nil {
+		return ""
+	}
+
+	if msg, ok := e.errWrapper.Messages[lang]; ok {
+		return msg
+	}
+	// Fallback to English
+	if msg, ok := e.errWrapper.Messages["en"]; ok {
+		return msg
+	}
+	// Fallback to first available
+	for _, msg := range e.errWrapper.Messages {
+		return msg
+	}
+	return e.key
+}
+
+// Is implements error comparison for errors.Is
+func (e *Error) Is(target error) bool {
+	if target == nil {
+		return false
+	}
+
+	if t, ok := target.(*Error); ok {
+		return e.key == t.key && e.code == t.code
+	}
+
+	return false
+}
+
 // ErrWrapper represents an error wrapper
 type ErrWrapper struct {
 	Key         string                 `json:"key" yaml:"key"`
