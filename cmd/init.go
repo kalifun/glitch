@@ -21,7 +21,7 @@ var initCmd = &cobra.Command{
 const errorTmp = `error:
   - key: MissingParameter
     code: MissingParameter
-	category: validation
+    category: validation
     severity: error
     description: Parameter verification error
     message:
