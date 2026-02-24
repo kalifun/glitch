@@ -2,6 +2,7 @@ package generator
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/spf13/viper"
 )
@@ -43,8 +44,7 @@ func (c *codeGenerator) Exec() error {
 	if outDir == "" {
 		outDir = c.package_name
 	}
-	err := createOutputDir(outDir)
-	if err != nil {
+	if err := createOutputDir(outDir); err != nil {
 		return err
 	}
 
@@ -52,12 +52,21 @@ func (c *codeGenerator) Exec() error {
 		return fmt.Errorf("no yaml files provided")
 	}
 
+	descs := make([]ErrorDesc, 0, len(c.file_paths))
 	for _, filePath := range c.file_paths {
 		desc, err := c.readFile(filePath)
 		if err != nil {
 			return err
 		}
+		descs = append(descs, desc)
+	}
 
+	if err := validateDuplicates(descs); err != nil {
+		return err
+	}
+
+	for i, filePath := range c.file_paths {
+		desc := descs[i]
 		outputFile := outputFileName(filePath, len(c.file_paths) == 1)
 		fileHandler, err := createCodeFile(outDir, outputFile)
 		if err != nil {
@@ -72,6 +81,7 @@ func (c *codeGenerator) Exec() error {
 
 		data, err := formatCode(s)
 		if err != nil {
+			fileHandler.Close()
 			return err
 		}
 
@@ -98,5 +108,42 @@ func (c *codeGenerator) readFile(filePath string) (ErrorDesc, error) {
 	if err != nil {
 		return desc, err
 	}
+	for i := range desc.Error {
+		desc.Error[i].SourceFile = filePath
+		desc.Error[i].Index = i
+	}
 	return desc, nil
+}
+
+func validateDuplicates(descs []ErrorDesc) error {
+	keySeen := make(map[string]ErrorItem)
+	codeSeen := make(map[string]ErrorItem)
+	var errs []string
+
+	for _, desc := range descs {
+		for _, item := range desc.Error {
+			if item.Key != "" {
+				if prev, ok := keySeen[item.Key]; ok {
+					errs = append(errs, fmt.Sprintf("duplicate key %q: %s and %s", item.Key, errorLoc(prev), errorLoc(item)))
+				} else {
+					keySeen[item.Key] = item
+				}
+			}
+			if item.Code != "" {
+				if prev, ok := codeSeen[item.Code]; ok {
+					errs = append(errs, fmt.Sprintf("duplicate code %q: %s and %s", item.Code, errorLoc(prev), errorLoc(item)))
+				} else {
+					codeSeen[item.Code] = item
+				}
+			}
+		}
+	}
+	if len(errs) > 0 {
+		return fmt.Errorf(strings.Join(errs, "\n"))
+	}
+	return nil
+}
+
+func errorLoc(item ErrorItem) string {
+	return fmt.Sprintf("%s#error[%d]", item.SourceFile, item.Index)
 }

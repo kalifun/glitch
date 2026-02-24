@@ -7,15 +7,19 @@ import (
 	"github.com/kalifun/glitch/utils"
 )
 
+type ErrorItem struct {
+	Key         string            `yaml:"key"`
+	Code        string            `yaml:"code"`
+	Category    string            `yaml:"category,omitempty"`
+	Severity    string            `yaml:"severity,omitempty"`
+	Description string            `yaml:"description,omitempty"`
+	Message     map[string]string `yaml:"message,omitempty"`
+	SourceFile  string            `yaml:"-"`
+	Index       int               `yaml:"-"`
+}
+
 type ErrorDesc struct {
-	Error []struct {
-		Key         string            `yaml:"key"`
-		Code        string            `yaml:"code"`
-		Category    string            `yaml:"category,omitempty"`
-		Severity    string            `yaml:"severity,omitempty"`
-		Description string            `yaml:"description,omitempty"`
-		Message     map[string]string `yaml:"message,omitempty"`
-	} `yaml:"error"`
+	Error []ErrorItem `yaml:"error"`
 }
 
 func (e ErrorDesc) ToString() string {
