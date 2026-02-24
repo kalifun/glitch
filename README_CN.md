@@ -89,6 +89,25 @@ error:
 glitch gen -y errors.yaml -p errors
 ```
 
+你也可以将错误拆分到多个 YAML 文件中，并按文件生成输出：
+
+```bash
+# 从目录生成
+glitch gen -y errors -p errors
+
+# 使用通配符（无需重复 -y）
+glitch gen errors/*.yaml -p errors
+
+# 输出到指定目录
+glitch gen errors/*.yaml -p generated --out examples/generated
+
+# 使用通配符
+glitch gen -y errors/*.yaml -p errors
+
+# 多个输入
+glitch gen -y errors/auth.yaml -y errors/user.yaml -p errors
+```
+
 ### 4. 使用生成的错误
 
 生成的代码提供直接的、类型安全的错误使用：

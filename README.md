@@ -87,6 +87,25 @@ error:
 glitch gen -y errors.yaml -p errors
 ```
 
+You can also split errors across multiple YAML files and generate per-file outputs:
+
+```bash
+# From a directory
+glitch gen -y errors -p errors
+
+# From a glob without repeating -y
+glitch gen errors/*.yaml -p errors
+
+# Output to a custom directory
+glitch gen errors/*.yaml -p generated --out examples/generated
+
+# From a glob
+glitch gen -y errors/*.yaml -p errors
+
+# From multiple inputs
+glitch gen -y errors/auth.yaml -y errors/user.yaml -p errors
+```
+
 ### 4. Use Generated Errors
 
 The generated code provides direct, type-safe error usage:
