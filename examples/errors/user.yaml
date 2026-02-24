@@ -1,0 +1,18 @@
+error:
+  - key: user_not_found
+    code: USER_NOT_FOUND
+    category: resource
+    severity: error
+    description: "User not found"
+    message:
+      en: "User not found: %s"
+      cn: "用户未找到: %s"
+
+  - key: invalid_email
+    code: USER_INVALID_EMAIL
+    category: validation
+    severity: error
+    description: "Invalid email address"
+    message:
+      en: "Invalid email address: %s"
+      cn: "无效的邮箱地址: %s"

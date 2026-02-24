@@ -1,0 +1,18 @@
+error:
+  - key: invalid_token
+    code: AUTH_INVALID_TOKEN
+    category: auth
+    severity: error
+    description: "Invalid auth token"
+    message:
+      en: "Invalid auth token"
+      cn: "无效的鉴权令牌"
+
+  - key: permission_denied
+    code: AUTH_PERMISSION_DENIED
+    category: auth
+    severity: error
+    description: "Permission denied"
+    message:
+      en: "Permission denied"
+      cn: "权限不足"

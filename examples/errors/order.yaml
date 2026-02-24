@@ -1,0 +1,18 @@
+error:
+  - key: order_not_found
+    code: ORDER_NOT_FOUND
+    category: resource
+    severity: error
+    description: "Order not found"
+    message:
+      en: "Order not found: %s"
+      cn: "订单未找到: %s"
+
+  - key: invalid_order_state
+    code: ORDER_INVALID_STATE
+    category: validation
+    severity: error
+    description: "Invalid order state"
+    message:
+      en: "Invalid order state: %s"
+      cn: "无效的订单状态: %s"
