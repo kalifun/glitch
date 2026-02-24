@@ -25,57 +25,76 @@ const (
 )
 
 type codeGenerator struct {
-	file_path    string
+	file_paths   []string
 	package_name string
+	output_dir   string
 }
 
-func NewCodeGen(filePaht, packageName string) *codeGenerator {
+func NewCodeGen(filePaths []string, packageName, outputDir string) *codeGenerator {
 	return &codeGenerator{
-		file_path:    filePaht,
+		file_paths:   filePaths,
 		package_name: packageName,
+		output_dir:   outputDir,
 	}
 }
 
 func (c *codeGenerator) Exec() error {
-	desc, err := c.readFile()
+	outDir := c.output_dir
+	if outDir == "" {
+		outDir = c.package_name
+	}
+	err := createOutputDir(outDir)
 	if err != nil {
 		return err
 	}
 
-	err = createPackageDir(c.package_name)
-	if err != nil {
-		return err
+	if len(c.file_paths) == 0 {
+		return fmt.Errorf("no yaml files provided")
 	}
 
-	fileHandler, err := createCodeFile(c.package_name, "code.go")
-	if err != nil {
-		return err
+	for _, filePath := range c.file_paths {
+		desc, err := c.readFile(filePath)
+		if err != nil {
+			return err
+		}
+
+		outputFile := outputFileName(filePath, len(c.file_paths) == 1)
+		fileHandler, err := createCodeFile(outDir, outputFile)
+		if err != nil {
+			return err
+		}
+
+		var s string
+		s += Declare + "\n"
+		s += fmt.Sprintf(Pack, c.package_name) + "\n"
+		s += Import + "\n"
+		s += desc.ToString()
+
+		data, err := formatCode(s)
+		if err != nil {
+			return err
+		}
+
+		if _, err := fileHandler.Write(data); err != nil {
+			fileHandler.Close()
+			return err
+		}
+		if err := fileHandler.Close(); err != nil {
+			return err
+		}
 	}
-	defer fileHandler.Close()
-
-	var s string
-	s += Declare + "\n"
-	s += fmt.Sprintf(Pack, c.package_name) + "\n"
-	s += Import + "\n"
-	s += desc.ToString()
-
-	data, err := formatCode(s)
-	if err != nil {
-		return err
-	}
-
-	fileHandler.Write(data)
 	return nil
 }
 
-func (c *codeGenerator) readFile() (ErrorDesc, error) {
-	viper.SetConfigFile(c.file_path)
+func (c *codeGenerator) readFile(filePath string) (ErrorDesc, error) {
+	v := viper.New()
+	v.SetConfigFile(filePath)
 	var desc ErrorDesc
-	err := viper.ReadInConfig()
+	err := v.ReadInConfig()
 	if err != nil {
 		return desc, err
 	}
-	err = viper.Unmarshal(&desc)
+	err = v.Unmarshal(&desc)
 	if err != nil {
 		return desc, err
 	}

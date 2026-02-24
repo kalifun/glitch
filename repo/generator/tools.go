@@ -3,21 +3,48 @@ package generator
 import (
 	"os"
 	"path"
+	"path/filepath"
+	"regexp"
 	"strings"
 
 	"mvdan.cc/gofumpt/format"
 )
 
-func createPackageDir(packageName string) error {
-	return os.MkdirAll(packageName, os.ModePerm)
+func createOutputDir(outputDir string) error {
+	return os.MkdirAll(outputDir, os.ModePerm)
 }
 
-func createCodeFile(packageName, fileName string) (*os.File, error) {
-	return os.Create(path.Join(packageName, fileName))
+func createCodeFile(outputDir, fileName string) (*os.File, error) {
+	return os.Create(path.Join(outputDir, fileName))
 }
 
 func formatCode(code string) ([]byte, error) {
 	return format.Source([]byte(code), format.Options{})
+}
+
+func outputFileName(inputPath string, singleInput bool) string {
+	if singleInput {
+		return "code.go"
+	}
+	base := filepath.Base(inputPath)
+	ext := filepath.Ext(base)
+	name := strings.TrimSuffix(base, ext)
+	name = sanitizeFileBase(name)
+	return name + ".go"
+}
+
+func sanitizeFileBase(name string) string {
+	name = strings.ToLower(name)
+	re := regexp.MustCompile(`[^a-z0-9_]+`)
+	name = re.ReplaceAllString(name, "_")
+	name = strings.Trim(name, "_")
+	if name == "" {
+		name = "errors"
+	}
+	if name[0] >= '0' && name[0] <= '9' {
+		name = "errors_" + name
+	}
+	return name
 }
 
 // auto check if string needs to be formatted
